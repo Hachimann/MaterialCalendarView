@@ -1,5 +1,6 @@
 # MaterialCalendarView
-Material Calendar View for Android
+Material Calendar View for Android.
+
 Improved Material CalendarView from [Prolific Interactive](https://github.com/prolificinteractive/material-calendarview).
 
 ## Features
