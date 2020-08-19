@@ -1,5 +1,7 @@
 # MaterialCalendarView
-[![Download](https://api.bintray.com/hachimann/MaterialCalendarView/material-calendarview/images/download.svg) ](https://bintray.com/hachimann/MaterialCalendarView/material-calendarview/_latestVersion)
+[ ![Download](https://api.bintray.com/packages/hachimann/MaterialCalendarView/material-calendarview/images/download.svg) ](https://bintray.com/hachimann/MaterialCalendarView/material-calendarview/_latestVersion)
+[![JitPack](https://jitpack.io/v/Hachimann/MaterialCalendarView.svg)](https://jitpack.io/#Hachimann/MaterialCalendarView)
+
 Material Calendar View for Android.
 
 Improved Material CalendarView from [Prolific Interactive](https://github.com/prolificinteractive/material-calendarview).
