@@ -24,6 +24,7 @@ import androidx.appcompat.widget.AppCompatCheckedTextView;
 import com.github.hachimann.materialcalendarview.format.DayFormatter;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.hachimann.materialcalendarview.MaterialCalendarView.showDecoratedDisabled;
 import static com.github.hachimann.materialcalendarview.MaterialCalendarView.showOtherMonths;
@@ -65,9 +66,7 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 
         setGravity(Gravity.CENTER);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            setTextAlignment(TEXT_ALIGNMENT_CENTER);
-        }
+        setTextAlignment(TEXT_ALIGNMENT_CENTER);
 
         setDay(day);
     }
@@ -138,7 +137,8 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
         if (drawable == null) {
             this.selectionDrawable = null;
         } else {
-            this.selectionDrawable = drawable.getConstantState().newDrawable(getResources());
+            this.selectionDrawable = Objects.requireNonNull(
+                    drawable.getConstantState()).newDrawable(getResources());
         }
         regenerateBackground();
     }
@@ -150,7 +150,8 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
         if (drawable == null) {
             this.customBackground = null;
         } else {
-            this.customBackground = drawable.getConstantState().newDrawable(getResources());
+            this.customBackground = Objects.requireNonNull(
+                    drawable.getConstantState()).newDrawable(getResources());
         }
         invalidate();
     }
@@ -216,16 +217,16 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 
     private void regenerateBackground() {
         if (selectionDrawable != null) {
-//      setBackgroundDrawable(selectionDrawable);
+            setBackground(selectionDrawable);
         } else {
-            mCircleDrawable = generateBackground(selectionColor, fadeTime, circleDrawableRect);
-            setBackgroundDrawable(mCircleDrawable);
+            mCircleDrawable = generateBackground(selectionColor, fadeTime);
+            setBackground(mCircleDrawable);
         }
     }
 
-    private static Drawable generateBackground(int color, int fadeTime, Rect bounds) {
+    private static Drawable generateBackground(int color, int fadeTime) {
         StateListDrawable drawable = new StateListDrawable();
-        drawable.setExitFadeDuration(0);
+        drawable.setExitFadeDuration(fadeTime);
         drawable.addState(new int[] { android.R.attr.state_checked }, generateCircleDrawable(color));
         return drawable;
     }

@@ -70,9 +70,7 @@ abstract class CalendarPagerView extends ViewGroup
         LocalDate local = calendar;
         for (int i = 0; i < DEFAULT_DAYS_IN_WEEK; i++) {
             WeekDayView weekDayView = new WeekDayView(getContext(), local.getDayOfWeek());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                weekDayView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-            }
+            weekDayView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
             weekDayViews.add(weekDayView);
             addView(weekDayView);
             local = local.plusDays(1);
@@ -185,15 +183,14 @@ abstract class CalendarPagerView extends ViewGroup
         for (DayView dayView : dayViews) {
             CalendarDay day = dayView.getDate();
             if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
-            && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
-            && (CalendarDay.today().getYear() == dayView.getDate().getYear())
-            && dates != null && !dates.contains(day)) {
+                    && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
+                    && (CalendarDay.today().getYear() == dayView.getDate().getYear())
+                    && dates != null && !dates.contains(day)) {
                 dayView.setTextColor(mcv.getSelectionColor());
             }
-            else if (dates != null && !dates.contains(day)) {
-                dayView.setTextColor(Color.BLACK);
-            }
-            else {
+            else if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
+                    && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
+                    && (CalendarDay.today().getYear() == dayView.getDate().getYear())) {
                 dayView.setTextColor(Color.WHITE);
             }
             dayView.setChecked(dates != null && dates.contains(day));
@@ -306,11 +303,10 @@ abstract class CalendarPagerView extends ViewGroup
         final int parentWidth = getWidth();
         final int count = getChildCount();
         final int parentLeft = 0;
-        final int parentRight = parentWidth;
 
         int childTop = 0;
         int childLeft = parentLeft;
-        int childRight = parentRight;
+        int childRight = parentWidth;
 
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -329,7 +325,7 @@ abstract class CalendarPagerView extends ViewGroup
             //We should warp every so many children
             if (i % DEFAULT_DAYS_IN_WEEK == (DEFAULT_DAYS_IN_WEEK - 1)) {
                 childLeft = parentLeft;
-                childRight = parentRight;
+                childRight = parentWidth;
                 childTop += height;
             }
         }

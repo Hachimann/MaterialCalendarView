@@ -4,12 +4,13 @@
     <style name="TextAppearance.MaterialCalendarWidget.Header"
         parent="android:TextAppearance.DeviceDefault.Small">
         <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/colorHeader</item>
     </style>
 
     <style name="TextAppearance.MaterialCalendarWidget.Date"
         parent="android:TextAppearance.DeviceDefault.Small">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">@color/mcv_text_date_light</item>
+        <item name="android:textColor">@color/mcv_text_date</item>
     </style>
 
     <style name="TextAppearance.MaterialCalendarWidget.WeekDay"
