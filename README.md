@@ -1,4 +1,5 @@
 # MaterialCalendarView
+[![Download](https://api.bintray.com/hachimann/MaterialCalendarView/material-calendarview/images/download.svg) ](https://bintray.com/hachimann/MaterialCalendarView/material-calendarview/_latestVersion)
 Material Calendar View for Android.
 
 Improved Material CalendarView from [Prolific Interactive](https://github.com/prolificinteractive/material-calendarview).
@@ -8,6 +9,16 @@ Improved Material CalendarView from [Prolific Interactive](https://github.com/pr
 - [x] Highlighting the current date.
 - [x] Disabled ripple.
 - [x] Editable size of selectors.
+
+## Installation
+
+Add the dependency
+
+```groovy
+dependencies {
+  implementation 'com.github.hachimann:material-calendarview:${version}'
+}
+```
 
 ## Usage
 
