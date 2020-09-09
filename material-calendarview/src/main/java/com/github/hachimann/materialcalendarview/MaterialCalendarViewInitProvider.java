@@ -16,7 +16,7 @@ import androidx.annotation.Nullable;
 public final class MaterialCalendarViewInitProvider extends ContentProvider {
 
     private static final String MCV_AUTHORITY =
-            "com.prolificinteractive.materialcalendarview.materialcalendarviewinitprovider";
+            "com.github.hachimann.materialcalendarview.materialcalendarviewinitprovider";
 
     public MaterialCalendarViewInitProvider() { }
 

@@ -237,11 +237,14 @@ public class MaterialCalendarView extends ViewGroup {
         buttonFuture = content.findViewById(R.id.next);
         pager = new CalendarPager(getContext());
 
-        OnClickListener onClickListener = v -> {
-            if (v == buttonFuture) {
-                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
-            } else if (v == buttonPast) {
-                pager.setCurrentItem(pager.getCurrentItem() - 1, true);
+        OnClickListener onClickListener = new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (view == buttonFuture) {
+                    pager.setCurrentItem(pager.getCurrentItem() + 1, true);
+                } else if (view == buttonPast) {
+                    pager.setCurrentItem(pager.getCurrentItem() - 1, true);
+                }
             }
         };
         buttonPast.setOnClickListener(onClickListener);
@@ -1428,13 +1431,12 @@ public class MaterialCalendarView extends ViewGroup {
      * @param lastDay last day of the range to select
      */
     public void selectRange(final CalendarDay firstDay, final CalendarDay lastDay) {
-        if (firstDay == null || lastDay == null) {
-            return;
-        } else if (firstDay.isAfter(lastDay)) {
-            adapter.selectRange(lastDay, firstDay);
-            dispatchOnRangeSelected(adapter.getSelectedDates());
-        } else {
-            adapter.selectRange(firstDay, lastDay);
+        if (firstDay != null && lastDay != null) {
+            if (firstDay.isAfter(lastDay)) {
+                adapter.selectRange(lastDay, firstDay);
+            } else {
+                adapter.selectRange(firstDay, lastDay);
+            }
             dispatchOnRangeSelected(adapter.getSelectedDates());
         }
     }
