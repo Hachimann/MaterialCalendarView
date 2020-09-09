@@ -4,9 +4,8 @@ import androidx.annotation.NonNull;
 
 import com.github.hachimann.materialcalendarview.CalendarDay;
 
-import org.threeten.bp.format.DateTimeFormatter;
-
 import java.text.DateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 /**

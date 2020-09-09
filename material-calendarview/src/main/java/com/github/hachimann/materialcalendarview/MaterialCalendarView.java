@@ -35,12 +35,11 @@ import com.github.hachimann.materialcalendarview.format.MonthArrayTitleFormatter
 import com.github.hachimann.materialcalendarview.format.TitleFormatter;
 import com.github.hachimann.materialcalendarview.format.WeekDayFormatter;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.temporal.WeekFields;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -195,37 +194,6 @@ public class MaterialCalendarView extends ViewGroup {
 
     private final ArrayList<DayViewDecorator> dayViewDecorators = new ArrayList<>();
 
-    private final OnClickListener onClickListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (v == buttonFuture) {
-                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
-            } else if (v == buttonPast) {
-                pager.setCurrentItem(pager.getCurrentItem() - 1, true);
-            }
-        }
-    };
-
-    private final ViewPager.OnPageChangeListener pageChangeListener =
-            new ViewPager.OnPageChangeListener() {
-                @Override
-                public void onPageSelected(int position) {
-                    titleChanger.setPreviousMonth(currentMonth);
-                    currentMonth = adapter.getItem(position);
-                    updateUi();
-
-                    dispatchOnMonthChanged(currentMonth);
-                }
-
-                @Override
-                public void onPageScrollStateChanged(int state) {
-                }
-
-                @Override
-                public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                }
-            };
-
     private CalendarDay minDate = null;
     private CalendarDay maxDate = null;
 
@@ -255,15 +223,9 @@ public class MaterialCalendarView extends ViewGroup {
     public MaterialCalendarView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            //If we're on good Android versions, turn off clipping for cool effects
-            setClipToPadding(false);
-            setClipChildren(false);
-        } else {
-            //Old Android does not like _not_ clipping view pagers, we need to clip
-            setClipChildren(true);
-            setClipToPadding(true);
-        }
+        //If we're on good Android versions, turn off clipping for cool effects
+        setClipToPadding(false);
+        setClipChildren(false);
 
         final LayoutInflater inflater =
                 (LayoutInflater) getContext().getSystemService(Service.LAYOUT_INFLATER_SERVICE);
@@ -275,15 +237,40 @@ public class MaterialCalendarView extends ViewGroup {
         buttonFuture = content.findViewById(R.id.next);
         pager = new CalendarPager(getContext());
 
+        OnClickListener onClickListener = v -> {
+            if (v == buttonFuture) {
+                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
+            } else if (v == buttonPast) {
+                pager.setCurrentItem(pager.getCurrentItem() - 1, true);
+            }
+        };
         buttonPast.setOnClickListener(onClickListener);
         buttonFuture.setOnClickListener(onClickListener);
 
         titleChanger = new TitleChanger(title);
 
-        pager.setOnPageChangeListener(pageChangeListener);
+        ViewPager.OnPageChangeListener pageChangeListener = new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                titleChanger.setPreviousMonth(currentMonth);
+                currentMonth = adapter.getItem(position);
+                updateUi();
+
+                dispatchOnMonthChanged(currentMonth);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+        };
+        pager.addOnPageChangeListener(pageChangeListener);
         pager.setPageTransformer(false, new ViewPager.PageTransformer() {
             @Override
-            public void transformPage(View page, float position) {
+            public void transformPage(@NonNull View page, float position) {
                 position = (float) Math.sqrt(1 - Math.abs(position));
                 page.setAlpha(position);
             }
@@ -1588,7 +1575,7 @@ public class MaterialCalendarView extends ViewGroup {
             //Use measureTileSize if set
             measureTileHeight = measureTileSize;
             measureTileWidth = measureTileSize;
-        } else if (measureTileSize <= 0) {
+        } else {
             if (measureTileWidth <= 0) {
                 //Set width to default if no value were set
                 measureTileWidth = dpToPx(DEFAULT_TILE_SIZE_DP);

@@ -4,9 +4,8 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.LocalDate;
-
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.util.Collection;
 
 /**

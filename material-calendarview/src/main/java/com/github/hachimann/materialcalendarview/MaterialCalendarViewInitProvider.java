@@ -10,8 +10,6 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.jakewharton.threetenabp.AndroidThreeTen;
-
 /**
  * With this in place, we don't have to have the user install 310Abp by himself.
  */
@@ -24,8 +22,6 @@ public final class MaterialCalendarViewInitProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        // The interesting piece here.
-        AndroidThreeTen.init(getContext());
         return true;
     }
 
@@ -38,7 +34,7 @@ public final class MaterialCalendarViewInitProvider extends ContentProvider {
         if (MCV_AUTHORITY.equals(providerInfo.authority)) {
             throw new IllegalStateException(
                     "Incorrect provider authority in manifest. Most likely due to a "
-                            + "missing applicationId variable in application\'s build.gradle.");
+                            + "missing applicationId variable in application's build.gradle.");
         }
         super.attachInfo(context, providerInfo);
     }

@@ -1,8 +1,7 @@
 package com.github.hachimann.materialcalendarview.format;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.format.TextStyle;
-
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
 import java.util.Locale;
 
 /**

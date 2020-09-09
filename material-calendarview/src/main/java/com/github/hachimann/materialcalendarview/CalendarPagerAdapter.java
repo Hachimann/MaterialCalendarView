@@ -11,8 +11,7 @@ import com.github.hachimann.materialcalendarview.format.DayFormatter;
 import com.github.hachimann.materialcalendarview.format.TitleFormatter;
 import com.github.hachimann.materialcalendarview.format.WeekDayFormatter;
 
-import org.threeten.bp.LocalDate;
-
+import java.time.LocalDate;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
