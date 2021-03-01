@@ -6,19 +6,46 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.github.hachimann.materialcalendarview.MaterialCalendarView
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:id="@+id/calendarView"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:mcv_firstDayOfWeek="monday"
-        app:mcv_circlePadding="2dp"
-        app:mcv_showOtherDates="out_of_range" />
+        android:layout_height="match_parent">
+
+        <GridView
+            android:id="@+id/calendar_grid"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:listSelector="@android:color/transparent"
+            android:numColumns="7"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" >
+
+        </GridView>
+
+        <com.github.hachimann.materialcalendarview.MaterialCalendarView
+            android:id="@+id/calendarView"
+            android:layout_width="400dp"
+            android:layout_height="400dp"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/calendar_grid"
+            app:mcv_circlePadding="2dp"
+            app:mcv_firstDayOfWeek="monday"
+            app:mcv_showOtherDates="out_of_range" >
+
+        </com.github.hachimann.materialcalendarview.MaterialCalendarView>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/alternation_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="@string/alternating_after_a_week"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/calendarView" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

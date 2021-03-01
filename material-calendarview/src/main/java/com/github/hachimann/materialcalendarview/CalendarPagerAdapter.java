@@ -14,6 +14,7 @@ import com.github.hachimann.materialcalendarview.format.WeekDayFormatter;
 import java.time.LocalDate;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,6 +47,8 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
     private boolean selectionEnabled = true;
     boolean showWeekDays;
     private int dayCirclePadding;
+    public List<Integer> daysOfWeek;
+    int weekIdentifier;
 
     CalendarPagerAdapter(MaterialCalendarView mcv) {
         this.mcv = mcv;
@@ -101,6 +104,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         newAdapter.minDate = minDate;
         newAdapter.maxDate = maxDate;
         newAdapter.selectedDates = selectedDates;
+        newAdapter.daysOfWeek = daysOfWeek;
         newAdapter.weekDayFormatter = weekDayFormatter;
         newAdapter.dayFormatter = dayFormatter;
         newAdapter.dayFormatterContentDescription = dayFormatterContentDescription;
@@ -172,7 +176,10 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         pagerView.setShowOtherDates(showOtherDates);
         pagerView.setMinimumDate(minDate);
         pagerView.setMaximumDate(maxDate);
-        pagerView.setSelectedDates(selectedDates);
+        pagerView.setSelectedDates(selectedDates, daysOfWeek, mcv.getFirstDayOfWeek(),
+                weekIdentifier);
+
+//        pagerView.selectDaysOfWeek(daysOfWeek, unselectedDates);
 
         container.addView(pagerView);
         currentViews.add(pagerView);
@@ -180,6 +187,45 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         pagerView.setDayViewDecorators(decoratorResults);
 
         return pagerView;
+    }
+
+    public void selectDaysOfWeek(List<Integer> daysOfWeek, int day, int weekIdentifier) {
+        if (day != 0) {
+            List<CalendarDay> temp = new ArrayList<>(selectedDates);
+            for (CalendarDay calendarDay : temp
+            ) {
+                if (calendarDay.getDate().getDayOfWeek().getValue() == day) {
+                    selectedDates.remove(calendarDay);
+                }
+            }
+        }
+        this.daysOfWeek = daysOfWeek;
+        this.weekIdentifier = weekIdentifier;
+    }
+
+    public boolean isDateSelected(CalendarDay calendarDay) {
+        LocalDate localDate = calendarDay.getDate();
+        int dayOfWeekIntValue = localDate.getDayOfWeek().getValue();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.clear();
+        int firstDayOfWeek = mcv.getFirstDayOfWeek().getValue() + 1;
+        if (firstDayOfWeek == 8) {
+            firstDayOfWeek = 1;
+        }
+        calendar.setFirstDayOfWeek(firstDayOfWeek);
+        calendar.set(localDate.getYear(), localDate.getMonthValue() - 1,
+                localDate.getDayOfMonth());
+        int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+        if (daysOfWeek != null && daysOfWeek.contains(dayOfWeekIntValue)
+                && !selectedDates.contains(calendarDay)
+                && (weekIdentifier == 0 || (weekOfYear % 2 == 0 && weekIdentifier == 2)
+                || (weekOfYear % 2 != 0 && weekIdentifier == 1))) {
+            return true;
+        } else
+            return daysOfWeek != null
+                    && !daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())
+                    && selectedDates.contains(calendarDay);
     }
 
     public void setShowWeekDays(boolean showWeekDays) {
@@ -309,18 +355,28 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
     /**
      * Select or un-select a day.
      *
-     * @param day Day to select or un-select
+     * @param day      Day to select or un-select
      * @param selected Whether to select or un-select the day from the list.
      * @see CalendarPagerAdapter#selectRange(CalendarDay, CalendarDay)
      */
     public void setDateSelected(CalendarDay day, boolean selected) {
+        LocalDate localDate = day.getDate();
+        int dayOfWeekIntValue = localDate.getDayOfWeek().getValue();
         if (selected) {
-            if (!selectedDates.contains(day)) {
+            if (daysOfWeek != null && daysOfWeek.contains(dayOfWeekIntValue)
+                    && selectedDates.contains(day)) {
+                selectedDates.remove(day);
+                invalidateSelectedDates();
+            } else if (!selectedDates.contains(day)) {
                 selectedDates.add(day);
                 invalidateSelectedDates();
             }
         } else {
-            if (selectedDates.contains(day)) {
+            if (daysOfWeek != null && daysOfWeek.contains(dayOfWeekIntValue)
+                    && !selectedDates.contains(day)) {
+                selectedDates.add(day);
+                invalidateSelectedDates();
+            } else if (selectedDates.contains(day)) {
                 selectedDates.remove(day);
                 invalidateSelectedDates();
             }
@@ -332,7 +388,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
      * invalidate. First day should be before last day, otherwise the selection won't happen.
      *
      * @param first The first day of the range.
-     * @param last The last day in the range.
+     * @param last  The last day in the range.
      * @see CalendarPagerAdapter#setDateSelected(CalendarDay, boolean)
      */
     public void selectRange(final CalendarDay first, final CalendarDay last) {
@@ -344,7 +400,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         // for comparison
         final LocalDate end = last.getDate();
 
-        while( temp.isBefore(end) || temp.equals(end) ) {
+        while (temp.isBefore(end) || temp.equals(end)) {
             selectedDates.add(CalendarDay.from(temp));
             temp = temp.plusDays(1);
         }
@@ -352,10 +408,11 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         invalidateSelectedDates();
     }
 
-    private void invalidateSelectedDates() {
+    public void invalidateSelectedDates() {
         validateSelectedDates();
         for (V pagerView : currentViews) {
-            pagerView.setSelectedDates(selectedDates);
+            pagerView.setSelectedDates(selectedDates, daysOfWeek, mcv.getFirstDayOfWeek(),
+                    weekIdentifier);
         }
     }
 

@@ -81,7 +81,7 @@ public class MaterialCalendarView extends ViewGroup {
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
-            { SELECTION_MODE_NONE, SELECTION_MODE_SINGLE, SELECTION_MODE_MULTIPLE, SELECTION_MODE_RANGE })
+            {SELECTION_MODE_NONE, SELECTION_MODE_SINGLE, SELECTION_MODE_MULTIPLE, SELECTION_MODE_RANGE})
     public @interface SelectionMode {
     }
 
@@ -185,7 +185,7 @@ public class MaterialCalendarView extends ViewGroup {
     private final CalendarPager pager;
     private CalendarPagerAdapter<?> adapter;
     private CalendarDay currentMonth;
-    private LinearLayout topbar;
+    private final LinearLayout topBar;
     private CalendarMode calendarMode;
     /**
      * Used for the dynamic calendar height.
@@ -211,6 +211,7 @@ public class MaterialCalendarView extends ViewGroup {
     private boolean allowClickDaysOutsideCurrentMonth = true;
     private DayOfWeek firstDayOfWeek;
     private boolean showWeekDays;
+    private int weekIdentifier;
 
     private int dayCirclePadding = 0;
 
@@ -229,22 +230,19 @@ public class MaterialCalendarView extends ViewGroup {
 
         final LayoutInflater inflater =
                 (LayoutInflater) getContext().getSystemService(Service.LAYOUT_INFLATER_SERVICE);
-        final View content = inflater.inflate(R.layout.calendar_view, null, false);
+        final View content = inflater.inflate(R.layout.calendar_view, this, false);
 
-        topbar = content.findViewById(R.id.header);
+        topBar = content.findViewById(R.id.header);
         buttonPast = content.findViewById(R.id.previous);
         title = content.findViewById(R.id.month_name);
         buttonFuture = content.findViewById(R.id.next);
         pager = new CalendarPager(getContext());
 
-        OnClickListener onClickListener = new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view == buttonFuture) {
-                    pager.setCurrentItem(pager.getCurrentItem() + 1, true);
-                } else if (view == buttonPast) {
-                    pager.setCurrentItem(pager.getCurrentItem() - 1, true);
-                }
+        OnClickListener onClickListener = view -> {
+            if (view == buttonFuture) {
+                pager.setCurrentItem(pager.getCurrentItem() + 1, true);
+            } else if (view == buttonPast) {
+                pager.setCurrentItem(pager.getCurrentItem() - 1, true);
             }
         };
         buttonPast.setOnClickListener(onClickListener);
@@ -271,16 +269,14 @@ public class MaterialCalendarView extends ViewGroup {
             }
         };
         pager.addOnPageChangeListener(pageChangeListener);
-        pager.setPageTransformer(false, new ViewPager.PageTransformer() {
-            @Override
-            public void transformPage(@NonNull View page, float position) {
-                position = (float) Math.sqrt(1 - Math.abs(position));
-                page.setAlpha(position);
-            }
+        pager.setPageTransformer(false, (page, position) -> {
+            position = (float) Math.sqrt(1 - Math.abs(position));
+            page.setAlpha(position);
         });
 
         TypedArray a = context.getTheme()
-                .obtainStyledAttributes(attrs, R.styleable.MaterialCalendarView, 0, 0);
+                .obtainStyledAttributes(attrs, R.styleable.MaterialCalendarView, 0,
+                        0);
         try {
             int calendarModeIndex = a.getInteger(
                     R.styleable.MaterialCalendarView_mcv_calendarMode,
@@ -303,7 +299,8 @@ public class MaterialCalendarView extends ViewGroup {
                 firstDayOfWeek = WeekFields.of(Locale.getDefault()).getFirstDayOfWeek();
             }
 
-            showWeekDays = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showWeekDays, true);
+            showWeekDays = a.getBoolean(R.styleable.MaterialCalendarView_mcv_showWeekDays,
+                    true);
 
             newState()
                     .setFirstDayOfWeek(firstDayOfWeek)
@@ -412,17 +409,19 @@ public class MaterialCalendarView extends ViewGroup {
 
         if (isInEditMode()) {
             removeView(pager);
-            MonthView monthView = new MonthView(this, currentMonth, getFirstDayOfWeek(), true);
+            MonthView monthView = new MonthView(this, currentMonth, getFirstDayOfWeek(),
+                    true);
             monthView.setSelectionColor(getSelectionColor());
             monthView.setDateTextAppearance(adapter.getDateTextAppearance());
             monthView.setWeekDayTextAppearance(adapter.getWeekDayTextAppearance());
             monthView.setShowOtherDates(getShowOtherDates());
-            addView(monthView, new LayoutParams(calendarMode.visibleWeeksCount + DAY_NAMES_ROW));
+            addView(monthView,
+                    new LayoutParams(calendarMode.visibleWeeksCount + DAY_NAMES_ROW));
         }
     }
 
     private void setupChildren() {
-        addView(topbar);
+        addView(topBar);
 
         pager.setId(R.id.mcv_pager);
         pager.setOffscreenPageLimit(1);
@@ -442,9 +441,9 @@ public class MaterialCalendarView extends ViewGroup {
      * #SELECTION_MODE_SINGLE}
      *
      * @param mode the selection mode to change to. This must be one of
-     * {@linkplain #SELECTION_MODE_NONE}, {@linkplain #SELECTION_MODE_SINGLE},
-     * {@linkplain #SELECTION_MODE_RANGE} or {@linkplain #SELECTION_MODE_MULTIPLE}.
-     * Unknown values will act as {@linkplain #SELECTION_MODE_SINGLE}
+     *             {@linkplain #SELECTION_MODE_NONE}, {@linkplain #SELECTION_MODE_SINGLE},
+     *             {@linkplain #SELECTION_MODE_RANGE} or {@linkplain #SELECTION_MODE_MULTIPLE}.
+     *             Unknown values will act as {@linkplain #SELECTION_MODE_SINGLE}
      * @see #getSelectionMode()
      * @see #SELECTION_MODE_NONE
      * @see #SELECTION_MODE_SINGLE
@@ -533,7 +532,7 @@ public class MaterialCalendarView extends ViewGroup {
     /**
      * Set the size of each tile that makes up the calendar.
      * Each day is 1 tile, so the widget is 7 tiles wide and 7 or 8 tiles tall
-     * depending on the visibility of the {@link #topbar}.
+     * depending on the visibility of the {@link #topBar}.
      *
      * @param size the new size for each tile in pixels
      */
@@ -628,6 +627,7 @@ public class MaterialCalendarView extends ViewGroup {
     /**
      * Pass all touch events to the pager so scrolling works on the edges of the calendar view.
      */
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return pager.dispatchTouchEvent(event);
@@ -656,6 +656,11 @@ public class MaterialCalendarView extends ViewGroup {
         invalidate();
     }
 
+    /**
+     * Set selected day circle padding
+     *
+     * @param padding The selection padding
+     */
     public void setDayCirclePadding(int padding) {
         dayCirclePadding = padding;
         adapter.setDayCirclePadding(padding);
@@ -772,7 +777,8 @@ public class MaterialCalendarView extends ViewGroup {
      * will return the last date of the list of selected dates.
      * @see MaterialCalendarView#getSelectedDates()
      */
-    @Nullable public CalendarDay getSelectedDate() {
+    @Nullable
+    public CalendarDay getSelectedDate() {
         List<CalendarDay> dates = adapter.getSelectedDates();
         if (dates.isEmpty()) {
             return null;
@@ -791,7 +797,8 @@ public class MaterialCalendarView extends ViewGroup {
      * @return All of the currently selected dates.
      * @see MaterialCalendarView#getSelectedDate()
      */
-    @NonNull public List<CalendarDay> getSelectedDates() {
+    @NonNull
+    public List<CalendarDay> getSelectedDates() {
         return adapter.getSelectedDates();
     }
 
@@ -824,7 +831,7 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     /**
-     * @param day a CalendarDay to change. Passing null does nothing
+     * @param day      a CalendarDay to change. Passing null does nothing
      * @param selected true if day should be selected, false to deselect
      */
     public void setDateSelected(@Nullable CalendarDay day, boolean selected) {
@@ -835,9 +842,162 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     /**
+     * @param daysOfWeek     a Integer List of numbers of selected days of week
+     * @param day            a Integer number of week day to change selection of week days.
+     *                       Passing 0 does nothing
+     * @param weekIdentifier a Integer value which indicates the evenness of the week and using
+     *                       for alternating weeks mode
+     */
+    public void selectDaysOfWeek(List<Integer> daysOfWeek, int day, int weekIdentifier) {
+        adapter.selectDaysOfWeek(daysOfWeek, day, weekIdentifier);
+        adapter.invalidateSelectedDates();
+        this.weekIdentifier = weekIdentifier;
+    }
+
+    /**
+     * @param calendarDay a CalendarDay to check if selected
+     */
+    public boolean isDateSelected(CalendarDay calendarDay) {
+        return adapter.isDateSelected(calendarDay);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     * @param sec a Integer value to indicate second selected day
+     * @param thi a Integer value to indicate third selected day
+     * @param fou a Integer value to indicate fourth selected day
+     * @param fif a Integer value to indicate fifth selected day
+     * @param six a Integer value to indicate sixth selected day
+     * @param sev a Integer value to indicate seventh selected day
+     */
+    public void addSelectedWeekDays(int fir, int sec, int thi, int fou, int fif, int six, int sev) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 7; counter++) {
+            daysOfWeek.add(fir);
+            daysOfWeek.add(sec);
+            daysOfWeek.add(thi);
+            daysOfWeek.add(fou);
+            daysOfWeek.add(fif);
+            daysOfWeek.add(six);
+            daysOfWeek.add(sev);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     * @param sec a Integer value to indicate second selected day
+     * @param thi a Integer value to indicate third selected day
+     * @param fou a Integer value to indicate fourth selected day
+     * @param fif a Integer value to indicate fifth selected day
+     * @param six a Integer value to indicate sixth selected day
+     */
+    public void addSelectedWeekDays(int fir, int sec, int thi, int fou, int fif, int six) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 6; counter++) {
+            daysOfWeek.add(fir);
+            daysOfWeek.add(sec);
+            daysOfWeek.add(thi);
+            daysOfWeek.add(fou);
+            daysOfWeek.add(fif);
+            daysOfWeek.add(six);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     * @param sec a Integer value to indicate second selected day
+     * @param thi a Integer value to indicate third selected day
+     * @param fou a Integer value to indicate fourth selected day
+     * @param fif a Integer value to indicate fifth selected day
+     */
+    public void addSelectedWeekDays(int fir, int sec, int thi, int fou, int fif) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 5; counter++) {
+            daysOfWeek.add(fir);
+            daysOfWeek.add(sec);
+            daysOfWeek.add(thi);
+            daysOfWeek.add(fou);
+            daysOfWeek.add(fif);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     * @param sec a Integer value to indicate second selected day
+     * @param thi a Integer value to indicate third selected day
+     * @param fou a Integer value to indicate fourth selected day
+     */
+    public void addSelectedWeekDays(int fir, int sec, int thi, int fou) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 4; counter++) {
+            daysOfWeek.add(fir);
+            daysOfWeek.add(sec);
+            daysOfWeek.add(thi);
+            daysOfWeek.add(fou);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     * @param sec a Integer value to indicate second selected day
+     * @param thi a Integer value to indicate third selected day
+     */
+    public void addSelectedWeekDays(int fir, int sec, int thi) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 3; counter++) {
+            daysOfWeek.add(fir);
+            daysOfWeek.add(sec);
+            daysOfWeek.add(thi);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     * @param sec a Integer value to indicate second selected day
+     */
+    public void addSelectedWeekDays(int fir, int sec) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 2; counter++) {
+            daysOfWeek.add(fir);
+            daysOfWeek.add(sec);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
+     * Adds number of week days in days of week list
+     *
+     * @param fir a Integer value to indicate first selected day
+     */
+    public void addSelectedWeekDays(int fir) {
+        List<Integer> daysOfWeek = new ArrayList<>();
+        for (int counter = 0; counter < 1; counter++) {
+            daysOfWeek.add(fir);
+        }
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+    }
+
+    /**
      * Get the current first day of the month in month mode, or the first visible day of the
      * currently visible week.
-     *
+     * <p>
      * For example, in week mode, if the week is July 29th, 2018 to August 4th, 2018,
      * this will return July 29th, 2018. If in month mode and the month is august, then this method
      * will return August 1st, 2018.
@@ -851,9 +1011,9 @@ public class MaterialCalendarView extends ViewGroup {
 
     /**
      * Set the calendar to a specific month or week based on a date.
-     *
+     * <p>
      * In month mode, the calendar will be set to the corresponding month.
-     *
+     * <p>
      * In week mode, the calendar will be set to the corresponding week.
      *
      * @param calendar a Calendar set to a day to focus the calendar on. Null will do nothing
@@ -864,9 +1024,9 @@ public class MaterialCalendarView extends ViewGroup {
 
     /**
      * Set the calendar to a specific month or week based on a date.
-     *
+     * <p>
      * In month mode, the calendar will be set to the corresponding month.
-     *
+     * <p>
      * In week mode, the calendar will be set to the corresponding week.
      *
      * @param day a CalendarDay to focus the calendar on. Null will do nothing
@@ -877,12 +1037,12 @@ public class MaterialCalendarView extends ViewGroup {
 
     /**
      * Set the calendar to a specific month or week based on a date.
-     *
+     * <p>
      * In month mode, the calendar will be set to the corresponding month.
-     *
+     * <p>
      * In week mode, the calendar will be set to the corresponding week.
      *
-     * @param day a CalendarDay to focus the calendar on. Null will do nothing
+     * @param day             a CalendarDay to focus the calendar on. Null will do nothing
      * @param useSmoothScroll use smooth scroll when changing months.
      */
     public void setCurrentDate(@Nullable CalendarDay day, boolean useSmoothScroll) {
@@ -955,12 +1115,26 @@ public class MaterialCalendarView extends ViewGroup {
         adapter.setDayFormatter(formatter == null ? DayFormatter.DEFAULT : formatter);
     }
 
-
+    /**
+     * Set a {@linkplain com.github.hachimann.materialcalendarview.format.WeekDayFormatter}
+     * with the provided week day labels
+     *
+     * @param weekDayLabels Labels to use for the days of the week
+     * @see com.github.hachimann.materialcalendarview.format.ArrayWeekDayFormatter
+     * @see #setWeekDayFormatter(com.github.hachimann.materialcalendarview.format.WeekDayFormatter)
+     */
     public void setWeekDayLabels(CharSequence[] weekDayLabels) {
         setWeekDayFormatter(new ArrayWeekDayFormatter(weekDayLabels));
     }
 
-
+    /**
+     * Set a {@linkplain com.github.hachimann.materialcalendarview.format.WeekDayFormatter}
+     * with the provided week day labels
+     *
+     * @param arrayRes String array resource of week day labels
+     * @see com.github.hachimann.materialcalendarview.format.ArrayWeekDayFormatter
+     * @see #setWeekDayFormatter(com.github.hachimann.materialcalendarview.format.WeekDayFormatter)
+     */
     public void setWeekDayLabels(@ArrayRes int arrayRes) {
         setWeekDayLabels(getResources().getTextArray(arrayRes));
     }
@@ -1004,12 +1178,26 @@ public class MaterialCalendarView extends ViewGroup {
         updateUi();
     }
 
-
+    /**
+     * Set a {@linkplain com.github.hachimann.materialcalendarview.format.TitleFormatter}
+     * using the provided month labels
+     *
+     * @param monthLabels month labels to use
+     * @see com.github.hachimann.materialcalendarview.format.MonthArrayTitleFormatter
+     * @see #setTitleFormatter(com.github.hachimann.materialcalendarview.format.TitleFormatter)
+     */
     public void setTitleMonths(CharSequence[] monthLabels) {
         setTitleFormatter(new MonthArrayTitleFormatter(monthLabels));
     }
 
-
+    /**
+     * Set a {@linkplain com.github.hachimann.materialcalendarview.format.TitleFormatter}
+     * using the provided month labels
+     *
+     * @param arrayRes String array resource of month labels to use
+     * @see com.github.hachimann.materialcalendarview.format.MonthArrayTitleFormatter
+     * @see #setTitleFormatter(com.github.hachimann.materialcalendarview.format.TitleFormatter)
+     */
     public void setTitleMonths(@ArrayRes int arrayRes) {
         setTitleMonths(getResources().getTextArray(arrayRes));
     }
@@ -1018,7 +1206,7 @@ public class MaterialCalendarView extends ViewGroup {
      * Change the title animation orientation to have a different look and feel.
      *
      * @param orientation {@link MaterialCalendarView#VERTICAL} or {@link
-     * MaterialCalendarView#HORIZONTAL}
+     *                    MaterialCalendarView#HORIZONTAL}
      */
     public void setTitleAnimationOrientation(final int orientation) {
         titleChanger.setOrientation(orientation);
@@ -1035,14 +1223,14 @@ public class MaterialCalendarView extends ViewGroup {
     }
 
     /**
-     * Sets the visibility {@link #topbar}, which contains
+     * Sets the visibility {@link #topBar}, which contains
      * the previous month button {@link #buttonPast}, next month button {@link #buttonFuture},
      * and the month title {@link #title}.
      *
      * @param visible Boolean indicating if the topbar is visible
      */
     public void setTopbarVisible(boolean visible) {
-        topbar.setVisibility(visible ? View.VISIBLE : View.GONE);
+        topBar.setVisibility(visible ? View.VISIBLE : View.GONE);
         requestLayout();
     }
 
@@ -1050,7 +1238,7 @@ public class MaterialCalendarView extends ViewGroup {
      * @return true if the topbar is visible
      */
     public boolean getTopbarVisible() {
-        return topbar.getVisibility() == View.VISIBLE;
+        return topBar.getVisibility() == View.VISIBLE;
     }
 
     /**
@@ -1188,7 +1376,8 @@ public class MaterialCalendarView extends ViewGroup {
         } else {
             //Get colorAccent defined for AppCompat
             colorAttr =
-                    context.getResources().getIdentifier("colorAccent", "attr", context.getPackageName());
+                    context.getResources().getIdentifier("colorAccent", "attr",
+                            context.getPackageName());
         }
         TypedValue outValue = new TypedValue();
         context.getTheme().resolveAttribute(colorAttr, outValue, true);
@@ -1336,7 +1525,7 @@ public class MaterialCalendarView extends ViewGroup {
     /**
      * Dispatch date change events to a listener, if set
      *
-     * @param day the day that was selected
+     * @param day      the day that was selected
      * @param selected true if the day is now currently selected, false otherwise
      */
     protected void dispatchOnDateSelected(final CalendarDay day, final boolean selected) {
@@ -1371,7 +1560,7 @@ public class MaterialCalendarView extends ViewGroup {
      * Call by {@link CalendarPagerView} to indicate that a day was clicked and we should handle it.
      * This method will always process the click to the selected date.
      *
-     * @param date date of the day that was clicked
+     * @param date        date of the day that was clicked
      * @param nowSelected true if the date is now selected, false otherwise
      */
     protected void onDateClicked(@NonNull CalendarDay date, boolean nowSelected) {
@@ -1428,7 +1617,7 @@ public class MaterialCalendarView extends ViewGroup {
      * Select a fresh range of date including first day and last day.
      *
      * @param firstDay first day of the range to select
-     * @param lastDay last day of the range to select
+     * @param lastDay  last day of the range to select
      */
     public void selectRange(final CalendarDay firstDay, final CalendarDay lastDay) {
         if (firstDay != null && lastDay != null) {
@@ -1630,7 +1819,8 @@ public class MaterialCalendarView extends ViewGroup {
         if (isInMonthsMode && mDynamicHeightEnabled && adapter != null && pager != null) {
             final LocalDate cal = adapter.getItem(pager.getCurrentItem()).getDate();
             final LocalDate tempLastDay = cal.withDayOfMonth(cal.lengthOfMonth());
-            weekCount = tempLastDay.get(WeekFields.of(firstDayOfWeek, 1).weekOfMonth());
+            weekCount = tempLastDay.get(WeekFields.of(firstDayOfWeek,
+                    1).weekOfMonth());
         }
         return showWeekDays ? weekCount + DAY_NAMES_ROW : weekCount;
     }
@@ -1809,7 +1999,8 @@ public class MaterialCalendarView extends ViewGroup {
         public StateBuilder() {
             calendarMode = CalendarMode.MONTHS;
             firstDayOfWeek =
-                    LocalDate.now().with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1).getDayOfWeek();
+                    LocalDate.now().with(WeekFields.of(Locale.getDefault()).dayOfWeek(),
+                            1).getDayOfWeek();
         }
 
         private StateBuilder(final State state) {
@@ -1914,9 +2105,11 @@ public class MaterialCalendarView extends ViewGroup {
                 if (calendarMode == CalendarMode.MONTHS && currentlySelectedDate != null) {
                     // Going from months to weeks
                     LocalDate lastVisibleCalendar = calendarDayToShow.getDate();
-                    CalendarDay lastVisibleCalendarDay = CalendarDay.from(lastVisibleCalendar.plusDays(1));
+                    CalendarDay lastVisibleCalendarDay =
+                            CalendarDay.from(lastVisibleCalendar.plusDays(1));
                     if (currentlySelectedDate.equals(calendarDayToShow) ||
-                            (currentlySelectedDate.isAfter(calendarDayToShow) && currentlySelectedDate.isBefore(
+                            (currentlySelectedDate.isAfter(calendarDayToShow)
+                                    && currentlySelectedDate.isBefore(
                                     lastVisibleCalendarDay))) {
                         // Currently selected date is within view, so center on that
                         calendarDayToShow = currentlySelectedDate;
@@ -1924,10 +2117,11 @@ public class MaterialCalendarView extends ViewGroup {
                 } else if (calendarMode == CalendarMode.WEEKS) {
                     // Going from weeks to months
                     LocalDate lastVisibleCalendar = calendarDayToShow.getDate();
-                    CalendarDay lastVisibleCalendarDay = CalendarDay.from(lastVisibleCalendar.plusDays(6));
+                    CalendarDay lastVisibleCalendarDay =
+                            CalendarDay.from(lastVisibleCalendar.plusDays(6));
                     if (currentlySelectedDate != null &&
-                            (currentlySelectedDate.equals(calendarDayToShow) || currentlySelectedDate.equals(
-                                    lastVisibleCalendarDay) ||
+                            (currentlySelectedDate.equals(calendarDayToShow)
+                                    || currentlySelectedDate.equals(lastVisibleCalendarDay) ||
                                     (currentlySelectedDate.isAfter(calendarDayToShow)
                                             && currentlySelectedDate.isBefore(lastVisibleCalendarDay)))) {
                         // Currently selected date is within view, so center on that
@@ -1989,7 +2183,7 @@ public class MaterialCalendarView extends ViewGroup {
     /**
      * Used for enabling or disabling views, while also changing the alpha.
      *
-     * @param view The view to enable or disable.
+     * @param view   The view to enable or disable.
      * @param enable Whether to enable or disable the view.
      */
     private static void enableView(final View view, final boolean enable) {

@@ -33,7 +33,7 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 /**
  * Display one day of a {@linkplain MaterialCalendarView}
  */
-@SuppressLint("ViewConstructor") class DayView extends AppCompatCheckedTextView {
+@SuppressLint("ViewConstructor") public class DayView extends AppCompatCheckedTextView {
 
     private CalendarDay date;
     private int selectionColor = Color.GRAY;
@@ -53,9 +53,9 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 
     private int circlePadding = 0;
 
-    private Rect rangeRect = new Rect();
-    private Rect leftRect = new Rect();
-    private Rect rightRect = new Rect();
+    private final Rect rangeRect = new Rect();
+    private final Rect leftRect = new Rect();
+    private final Rect rightRect = new Rect();
 
     public DayView(Context context, CalendarDay day) {
         super(context);

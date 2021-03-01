@@ -1,7 +1,6 @@
 package com.github.hachimann.materialcalendarview;
 
 import android.graphics.Color;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,8 +36,8 @@ abstract class CalendarPagerView extends ViewGroup
     private final DayOfWeek firstDayOfWeek;
     @MaterialCalendarView.ShowOtherDates
     protected int showOtherDates = SHOW_DEFAULTS;
-    private MaterialCalendarView mcv;
-    private CalendarDay firstViewDay;
+    private final MaterialCalendarView mcv;
+    private final CalendarDay firstViewDay;
     private CalendarDay minDate = null;
     private CalendarDay maxDate = null;
     protected boolean showWeekDays;
@@ -86,7 +86,8 @@ abstract class CalendarPagerView extends ViewGroup
     }
 
     protected LocalDate resetAndGetWorkingCalendar() {
-        final TemporalField firstDayOfWeek = WeekFields.of(this.firstDayOfWeek, 1).dayOfWeek();
+        final TemporalField firstDayOfWeek = WeekFields.of(this.firstDayOfWeek,
+                1).dayOfWeek();
         final LocalDate temp = getFirstViewDay().getDate().with(firstDayOfWeek, 1);
         int dow = temp.getDayOfWeek().getValue();
         int delta = getFirstDayOfWeek().getValue() - dow;
@@ -178,29 +179,60 @@ abstract class CalendarPagerView extends ViewGroup
         updateUi();
     }
 
-    public void setSelectedDates(Collection<CalendarDay> dates) {
+    public void setSelectedDates(Collection<CalendarDay> dates, List<Integer> daysOfWeek,
+                                 DayOfWeek dayOfWeek, int weekIdentifier) {
         for (DayView dayView : dayViews) {
             CalendarDay day = dayView.getDate();
             if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
                     && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
-                    && (CalendarDay.today().getYear() == dayView.getDate().getYear())
-                    && dates != null && !dates.contains(day)) {
+                    && (CalendarDay.today().getYear() == dayView.getDate().getYear())) {
                 dayView.setTextColor(mcv.getSelectionColor());
             }
-            else if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
-                    && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
-                    && (CalendarDay.today().getYear() == dayView.getDate().getYear())) {
-                dayView.setTextColor(Color.WHITE);
+
+            LocalDate localDate = day.getDate();
+            int dayOfWeekIntValue = localDate.getDayOfWeek().getValue();
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.clear();
+            int firstDayOfWeek = dayOfWeek.getValue() + 1;
+            if (firstDayOfWeek == 8) {
+                firstDayOfWeek = 1;
             }
-            dayView.setChecked(dates != null && dates.contains(day));
+            calendar.setFirstDayOfWeek(firstDayOfWeek);
+            calendar.set(localDate.getYear(), localDate.getMonthValue() - 1,
+                    localDate.getDayOfMonth());
+            int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+
+            if (daysOfWeek != null && daysOfWeek.contains(dayOfWeekIntValue)
+                    && (weekIdentifier == 0 || (weekOfYear % 2 == 0 && weekIdentifier == 2)
+                    || (weekOfYear % 2 != 0 && weekIdentifier == 1))) {
+                dayView.setChecked(dates != null && !dates.contains(day));
+
+                if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
+                        && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
+                        && (CalendarDay.today().getYear() == dayView.getDate().getYear())
+                        && dates != null && !dates.contains(day)) {
+                    dayView.setTextColor(Color.WHITE);
+                }
+            } else {
+                dayView.setChecked(dates != null && dates.contains(day));
+
+                if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
+                        && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
+                        && (CalendarDay.today().getYear() == dayView.getDate().getYear())
+                        && dates != null && dates.contains(day)) {
+                    dayView.setTextColor(Color.WHITE);
+                }
+            }
+            postInvalidate();
         }
-        postInvalidate();
     }
 
     protected void updateUi() {
         for (DayView dayView : dayViews) {
             CalendarDay day = dayView.getDate();
-            dayView.setupSelection(showOtherDates, day.isInRange(minDate, maxDate), isDayEnabled(day));
+            dayView.setupSelection(showOtherDates, day.isInRange(minDate, maxDate),
+                    isDayEnabled(day));
         }
         postInvalidate();
     }
