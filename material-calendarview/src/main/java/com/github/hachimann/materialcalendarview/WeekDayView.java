@@ -2,7 +2,6 @@ package com.github.hachimann.materialcalendarview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Build;
 import android.view.Gravity;
 
 import androidx.annotation.Nullable;
@@ -15,7 +14,8 @@ import java.time.DayOfWeek;
 /**
  * Display a day of the week
  */
-@SuppressLint("ViewConstructor") class WeekDayView extends AppCompatTextView {
+@SuppressLint("ViewConstructor")
+class WeekDayView extends AppCompatTextView {
 
     private WeekDayFormatter formatter = WeekDayFormatter.DEFAULT;
     private DayOfWeek dayOfWeek;

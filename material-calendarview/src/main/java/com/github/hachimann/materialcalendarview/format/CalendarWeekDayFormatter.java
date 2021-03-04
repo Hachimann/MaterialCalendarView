@@ -10,11 +10,11 @@ import java.util.Locale;
  * @see java.time.DayOfWeek#getDisplayName(java.time.format.TextStyle, Locale)
  */
 public final class CalendarWeekDayFormatter implements WeekDayFormatter {
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public CharSequence format(final DayOfWeek dayOfWeek) {
-    return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault());
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public CharSequence format(final DayOfWeek dayOfWeek) {
+        return dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault());
+    }
 }

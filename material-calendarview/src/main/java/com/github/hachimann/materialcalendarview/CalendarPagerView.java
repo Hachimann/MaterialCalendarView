@@ -189,8 +189,7 @@ abstract class CalendarPagerView extends ViewGroup
                     && (CalendarDay.today().getYear() == dayView.getDate().getYear())) {
                 dayView.setTextColor(mcv.getSelectionColor());
 
-            }
-            else if (dayView.getTextColors() == ColorStateList.valueOf(mcv.getSelectionColor())) {
+            } else if (dayView.getTextColors() == ColorStateList.valueOf(mcv.getSelectionColor())) {
                 dayView.setTextColor(Color.BLACK);
             }
 

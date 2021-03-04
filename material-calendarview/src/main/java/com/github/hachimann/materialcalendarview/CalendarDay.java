@@ -20,9 +20,9 @@ public final class CalendarDay implements Parcelable {
     private final LocalDate date;
 
     /**
-     * @param year new instance's year
+     * @param year  new instance's year
      * @param month new instance's month as defined by {@linkplain java.util.Calendar}
-     * @param day new instance's day of month
+     * @param day   new instance's day of month
      */
     private CalendarDay(final int year, final int month, final int day) {
         date = LocalDate.of(year, month, day);
@@ -40,19 +40,21 @@ public final class CalendarDay implements Parcelable {
      *
      * @return CalendarDay set to today's date
      */
-    @NonNull public static CalendarDay today() {
+    @NonNull
+    public static CalendarDay today() {
         return from(LocalDate.now());
     }
 
     /**
      * Get a new instance set to the specified day
      *
-     * @param year new instance's year
+     * @param year  new instance's year
      * @param month new instance's month as defined by {@linkplain java.util.Calendar}
-     * @param day new instance's day of month
+     * @param day   new instance's day of month
      * @return CalendarDay set to the specified date
      */
-    @NonNull public static CalendarDay from(int year, int month, int day) {
+    @NonNull
+    public static CalendarDay from(int year, int month, int day) {
         return new CalendarDay(year, month, day);
     }
 
@@ -101,7 +103,8 @@ public final class CalendarDay implements Parcelable {
      *
      * @return a date with this days information
      */
-    @NonNull public LocalDate getDate() {
+    @NonNull
+    public LocalDate getDate() {
         return date;
     }
 

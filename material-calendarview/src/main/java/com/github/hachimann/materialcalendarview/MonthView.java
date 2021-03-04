@@ -12,7 +12,8 @@ import java.util.Collection;
  * Display a month of {@linkplain DayView}s and
  * seven {@linkplain WeekDayView}s.
  */
-@SuppressLint("ViewConstructor") class MonthView extends CalendarPagerView {
+@SuppressLint("ViewConstructor")
+class MonthView extends CalendarPagerView {
 
     public MonthView(
             @NonNull final MaterialCalendarView view,

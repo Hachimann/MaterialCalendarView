@@ -18,7 +18,8 @@ public final class MaterialCalendarViewInitProvider extends ContentProvider {
     private static final String MCV_AUTHORITY =
             "com.github.hachimann.materialcalendarview.materialcalendarviewinitprovider";
 
-    public MaterialCalendarViewInitProvider() { }
+    public MaterialCalendarViewInitProvider() {
+    }
 
     @Override
     public boolean onCreate() {
@@ -50,12 +51,14 @@ public final class MaterialCalendarViewInitProvider extends ContentProvider {
         return null;
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public String getType(@NonNull final Uri uri) {
         return null;
     }
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public Uri insert(
             @NonNull final Uri uri,
             @Nullable final ContentValues values) {

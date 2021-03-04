@@ -205,8 +205,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
             int tempWeekIdentifier;
             if (weekIdentifier == 0) {
                 tempWeekIdentifier = this.weekIdentifier;
-            }
-            else {
+            } else {
                 tempWeekIdentifier = weekIdentifier;
             }
             List<CalendarDay> temp = new ArrayList<>(selectedDates);
