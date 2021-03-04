@@ -4,7 +4,7 @@ import com.github.hachimann.materialcalendarview.CalendarDay;
 
 public interface TitleFormatter {
 
-  String DEFAULT_FORMAT = "LLLL yyyy";
+  String DEFAULT_FORMAT = "MMMM yyyy";
 
   TitleFormatter DEFAULT = new DateFormatTitleFormatter();
 

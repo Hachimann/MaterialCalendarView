@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Material Calendar View</string>
+    <string name="alternating_after_a_week">Alternating after a week</string>
 </resources>

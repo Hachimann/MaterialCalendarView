@@ -12,11 +12,13 @@ import com.github.hachimann.materialcalendarview.format.TitleFormatter;
 import com.github.hachimann.materialcalendarview.format.WeekDayFormatter;
 
 import java.time.LocalDate;
+import java.time.temporal.WeekFields;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Pager adapter backing the calendar view
@@ -48,7 +50,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
     boolean showWeekDays;
     private int dayCirclePadding;
     public List<Integer> daysOfWeek;
-    int weekIdentifier;
+    int weekIdentifier = 0;
 
     CalendarPagerAdapter(MaterialCalendarView mcv) {
         this.mcv = mcv;
@@ -195,6 +197,25 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
             for (CalendarDay calendarDay : temp
             ) {
                 if (calendarDay.getDate().getDayOfWeek().getValue() == day) {
+                    selectedDates.remove(calendarDay);
+                }
+            }
+        }
+        if (weekIdentifier != this.weekIdentifier) {
+            int tempWeekIdentifier;
+            if (weekIdentifier == 0) {
+                tempWeekIdentifier = this.weekIdentifier;
+            }
+            else {
+                tempWeekIdentifier = weekIdentifier;
+            }
+            List<CalendarDay> temp = new ArrayList<>(selectedDates);
+            for (CalendarDay calendarDay : temp
+            ) {
+                WeekFields weekFields = WeekFields.of(Locale.getDefault());
+                int weekOfYear = calendarDay.getDate().get(weekFields.weekOfWeekBasedYear());
+                if ((weekOfYear % 2 != 0 && tempWeekIdentifier == 2)
+                        || (weekOfYear % 2 == 0 && tempWeekIdentifier == 1)) {
                     selectedDates.remove(calendarDay);
                 }
             }

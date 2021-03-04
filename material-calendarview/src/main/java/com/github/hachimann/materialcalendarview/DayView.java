@@ -33,7 +33,8 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 /**
  * Display one day of a {@linkplain MaterialCalendarView}
  */
-@SuppressLint("ViewConstructor") public class DayView extends AppCompatCheckedTextView {
+@SuppressLint("ViewConstructor")
+public class DayView extends AppCompatCheckedTextView {
 
     private CalendarDay date;
     private int selectionColor = Color.GRAY;
@@ -52,10 +53,6 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
     private int showOtherDates = MaterialCalendarView.SHOW_DEFAULTS;
 
     private int circlePadding = 0;
-
-    private final Rect rangeRect = new Rect();
-    private final Rect leftRect = new Rect();
-    private final Rect rightRect = new Rect();
 
     public DayView(Context context, CalendarDay day) {
         super(context);
@@ -184,7 +181,7 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 
         if (!isInMonth && shouldBeVisible) {
             setTextColor(getTextColors().getColorForState(
-                    new int[] { -android.R.attr.state_enabled }, Color.GRAY));
+                    new int[]{-android.R.attr.state_enabled}, Color.GRAY));
         }
         setVisibility(shouldBeVisible ? View.VISIBLE : View.INVISIBLE);
     }
@@ -227,7 +224,7 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
     private static Drawable generateBackground(int color, int fadeTime) {
         StateListDrawable drawable = new StateListDrawable();
         drawable.setExitFadeDuration(fadeTime);
-        drawable.addState(new int[] { android.R.attr.state_checked }, generateCircleDrawable(color));
+        drawable.addState(new int[]{android.R.attr.state_checked}, generateCircleDrawable(color));
         return drawable;
     }
 
@@ -291,14 +288,15 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
 
     private void calculateBounds(int width, int height) {
 
-        int totalWidth = width - (2*circlePadding);
-        int totalHeight = height - (2* circlePadding);
+        int totalWidth = width - (2 * circlePadding);
+        int totalHeight = height - (2 * circlePadding);
 
         final int radius = Math.min(totalHeight, totalWidth);
         final int offset = Math.abs(totalHeight - totalWidth) / 2;
 
-        // Lollipop platform bug. Circle drawable offset needs to be half of normal offset
+        // Lollipop platform bug. Circle drawable offset and padding needs to be half of normal offset
         final int circleOffset = Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP ? offset / 2 : offset;
+        final int circlePadding = Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP ? this.circlePadding / 2 + 1 : this.circlePadding;
 
         if (totalWidth >= totalHeight) {
             tempRect.set(offset, 0, radius + offset, totalHeight);
@@ -317,10 +315,5 @@ import static com.github.hachimann.materialcalendarview.MaterialCalendarView.sho
                     radius + circleOffset + circlePadding
             );
         }
-
-        // here calculates rect
-        rangeRect.set(0, circlePadding, width, height - circlePadding);
-        leftRect.set(0, circlePadding, width / 2, height - circlePadding);
-        rightRect.set(width / 2, circlePadding, width, height - circlePadding);
     }
 }

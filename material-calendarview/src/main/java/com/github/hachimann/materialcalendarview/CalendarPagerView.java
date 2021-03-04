@@ -1,5 +1,6 @@
 package com.github.hachimann.materialcalendarview;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
@@ -187,6 +188,10 @@ abstract class CalendarPagerView extends ViewGroup
                     && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
                     && (CalendarDay.today().getYear() == dayView.getDate().getYear())) {
                 dayView.setTextColor(mcv.getSelectionColor());
+
+            }
+            else if (dayView.getTextColors() == ColorStateList.valueOf(mcv.getSelectionColor())) {
+                dayView.setTextColor(Color.BLACK);
             }
 
             LocalDate localDate = day.getDate();
