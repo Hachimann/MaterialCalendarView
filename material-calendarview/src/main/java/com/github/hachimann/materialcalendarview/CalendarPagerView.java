@@ -1,6 +1,7 @@
 package com.github.hachimann.materialcalendarview;
 
 import android.content.res.ColorStateList;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.View;
@@ -18,7 +19,6 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 
@@ -180,7 +180,50 @@ abstract class CalendarPagerView extends ViewGroup
         updateUi();
     }
 
-    public void setSelectedDates(Collection<CalendarDay> dates, List<Integer> daysOfWeek,
+    private boolean isInRange(CalendarDay calendarDay) {
+        if (minDate == null || maxDate == null) {
+            return true;
+        }
+        return (calendarDay.getDate().isAfter(minDate.getDate())
+                || calendarDay.getDate().isEqual(minDate.getDate()))
+                && (calendarDay.getDate().isBefore(maxDate.getDate())
+                || calendarDay.getDate().isEqual(maxDate.getDate()));
+    }
+
+    private ColorStateList setDayViewTextColor(boolean isSelected) {
+        int nightModeFlags =
+                getContext().getResources().getConfiguration().uiMode &
+                        Configuration.UI_MODE_NIGHT_MASK;
+        ColorStateList colorStateList = null;
+        if (isSelected) {
+            switch (nightModeFlags) {
+                case Configuration.UI_MODE_NIGHT_YES:
+                    colorStateList = ColorStateList.valueOf(Color.BLACK);
+                    break;
+
+                case Configuration.UI_MODE_NIGHT_NO:
+
+                case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                    colorStateList = ColorStateList.valueOf(Color.WHITE);
+                    break;
+            }
+        } else {
+            switch (nightModeFlags) {
+                case Configuration.UI_MODE_NIGHT_YES:
+                    colorStateList = ColorStateList.valueOf(Color.WHITE);
+                    break;
+
+                case Configuration.UI_MODE_NIGHT_NO:
+
+                case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                    colorStateList = ColorStateList.valueOf(0xFF000000);
+                    break;
+            }
+        }
+        return colorStateList;
+    }
+
+    public void setSelectedDates(Collection<CalendarDay> selectedDates, List<Integer> daysOfWeek,
                                  DayOfWeek dayOfWeek, int weekIdentifier) {
         for (DayView dayView : dayViews) {
             CalendarDay day = dayView.getDate();
@@ -188,44 +231,27 @@ abstract class CalendarPagerView extends ViewGroup
                     && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
                     && (CalendarDay.today().getYear() == dayView.getDate().getYear())) {
                 dayView.setTextColor(mcv.getSelectionColor());
-
-            } else if (dayView.getTextColors() == ColorStateList.valueOf(mcv.getSelectionColor())) {
-                dayView.setTextColor(Color.BLACK);
+            } else if (isInRange(day)) {
+                dayView.setTextColor(setDayViewTextColor(false));
             }
 
-            LocalDate localDate = day.getDate();
-            int dayOfWeekIntValue = localDate.getDayOfWeek().getValue();
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.clear();
-            int firstDayOfWeek = dayOfWeek.getValue() + 1;
-            if (firstDayOfWeek == 8) {
-                firstDayOfWeek = 1;
-            }
-            calendar.setFirstDayOfWeek(firstDayOfWeek);
-            calendar.set(localDate.getYear(), localDate.getMonthValue() - 1,
-                    localDate.getDayOfMonth());
-            int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
+            int dayOfWeekIntValue = day.getDate().getDayOfWeek().getValue();
+            WeekFields weekFields = WeekFields.of(dayOfWeek, 1);
+            int weekOfYear = day.getDate().get(weekFields.weekOfWeekBasedYear());
 
             if (daysOfWeek != null && daysOfWeek.contains(dayOfWeekIntValue)
                     && (weekIdentifier == 0 || (weekOfYear % 2 == 0 && weekIdentifier == 2)
-                    || (weekOfYear % 2 != 0 && weekIdentifier == 1))) {
-                dayView.setChecked(dates != null && !dates.contains(day));
+                    || (weekOfYear % 2 != 0 && weekIdentifier == 1)) && isInRange(day)) {
+                dayView.setChecked(selectedDates != null && !selectedDates.contains(day));
 
-                if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
-                        && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
-                        && (CalendarDay.today().getYear() == dayView.getDate().getYear())
-                        && dates != null && !dates.contains(day)) {
-                    dayView.setTextColor(Color.WHITE);
+                if (selectedDates != null && !selectedDates.contains(day)) {
+                    dayView.setTextColor(setDayViewTextColor(true));
                 }
             } else {
-                dayView.setChecked(dates != null && dates.contains(day));
+                dayView.setChecked(selectedDates != null && selectedDates.contains(day));
 
-                if ((CalendarDay.today().getDay() == dayView.getDate().getDay())
-                        && (CalendarDay.today().getMonth() == dayView.getDate().getMonth())
-                        && (CalendarDay.today().getYear() == dayView.getDate().getYear())
-                        && dates != null && dates.contains(day)) {
-                    dayView.setTextColor(Color.WHITE);
+                if (selectedDates != null && selectedDates.contains(day)) {
+                    dayView.setTextColor(setDayViewTextColor(true));
                 }
             }
             postInvalidate();

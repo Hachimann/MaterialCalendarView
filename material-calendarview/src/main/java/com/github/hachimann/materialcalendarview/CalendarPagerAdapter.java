@@ -15,10 +15,8 @@ import java.time.LocalDate;
 import java.time.temporal.WeekFields;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Pager adapter backing the calendar view
@@ -211,10 +209,11 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
             List<CalendarDay> temp = new ArrayList<>(selectedDates);
             for (CalendarDay calendarDay : temp
             ) {
-                WeekFields weekFields = WeekFields.of(Locale.getDefault());
+                WeekFields weekFields = WeekFields.of(mcv.getFirstDayOfWeek(), 1);
                 int weekOfYear = calendarDay.getDate().get(weekFields.weekOfWeekBasedYear());
-                if ((weekOfYear % 2 != 0 && tempWeekIdentifier == 2)
-                        || (weekOfYear % 2 == 0 && tempWeekIdentifier == 1)) {
+                if (((weekOfYear % 2 != 0 && tempWeekIdentifier == 2)
+                        || (weekOfYear % 2 == 0 && tempWeekIdentifier == 1))
+                        && daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
                     selectedDates.remove(calendarDay);
                 }
             }
@@ -223,29 +222,28 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         this.weekIdentifier = weekIdentifier;
     }
 
-    public boolean isDateSelected(CalendarDay calendarDay) {
-        LocalDate localDate = calendarDay.getDate();
-        int dayOfWeekIntValue = localDate.getDayOfWeek().getValue();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        int firstDayOfWeek = mcv.getFirstDayOfWeek().getValue() + 1;
-        if (firstDayOfWeek == 8) {
-            firstDayOfWeek = 1;
-        }
-        calendar.setFirstDayOfWeek(firstDayOfWeek);
-        calendar.set(localDate.getYear(), localDate.getMonthValue() - 1,
-                localDate.getDayOfMonth());
-        int weekOfYear = calendar.get(Calendar.WEEK_OF_YEAR);
-        if (daysOfWeek != null && daysOfWeek.contains(dayOfWeekIntValue)
-                && !selectedDates.contains(calendarDay)
-                && (weekIdentifier == 0 || (weekOfYear % 2 == 0 && weekIdentifier == 2)
-                || (weekOfYear % 2 != 0 && weekIdentifier == 1))) {
+    private boolean isInRange(CalendarDay calendarDay) {
+        if (minDate == null || maxDate == null) {
             return true;
-        } else
-            return daysOfWeek != null
-                    && !daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())
-                    && selectedDates.contains(calendarDay);
+        }
+        return (calendarDay.getDate().isAfter(minDate.getDate())
+                || calendarDay.getDate().isEqual(minDate.getDate()))
+                && (calendarDay.getDate().isBefore(maxDate.getDate())
+                || calendarDay.getDate().isEqual(maxDate.getDate()));
+    }
+
+    public boolean isDateSelected(CalendarDay calendarDay) {
+        int dayOfWeekIntValue = calendarDay.getDate().getDayOfWeek().getValue();
+        WeekFields weekFields = WeekFields.of(mcv.getFirstDayOfWeek(), 1);
+        int weekOfYear = calendarDay.getDate().get(weekFields.weekOfWeekBasedYear());
+        if (daysOfWeek.contains(dayOfWeekIntValue)
+                && (weekIdentifier == 0 || (weekOfYear % 2 == 0 && weekIdentifier == 2)
+                || (weekOfYear % 2 != 0 && weekIdentifier == 1)) && isInRange(calendarDay)
+                && !selectedDates.contains(calendarDay)) {
+            return true;
+        } else {
+            return selectedDates.contains(calendarDay);
+        }
     }
 
     public void setShowWeekDays(boolean showWeekDays) {
