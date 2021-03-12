@@ -848,8 +848,8 @@ public class MaterialCalendarView extends ViewGroup {
      * @param weekIdentifier a Integer value which indicates the evenness of the week and using
      *                       for alternating weeks mode
      */
-    public void selectDaysOfWeek(List<Integer> daysOfWeek, int day, int weekIdentifier) {
-        adapter.selectDaysOfWeek(daysOfWeek, day, weekIdentifier);
+    public void selectDaysOfWeek(List<Integer> daysOfWeek, int day, int weekIdentifier, boolean needToUpdate) {
+        adapter.removePreviouslySelectedDates(daysOfWeek, day, weekIdentifier, needToUpdate);
         adapter.invalidateSelectedDates();
         this.weekIdentifier = weekIdentifier;
     }
@@ -883,7 +883,7 @@ public class MaterialCalendarView extends ViewGroup {
             daysOfWeek.add(six);
             daysOfWeek.add(sev);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**
@@ -906,7 +906,7 @@ public class MaterialCalendarView extends ViewGroup {
             daysOfWeek.add(fif);
             daysOfWeek.add(six);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**
@@ -927,7 +927,7 @@ public class MaterialCalendarView extends ViewGroup {
             daysOfWeek.add(fou);
             daysOfWeek.add(fif);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**
@@ -946,7 +946,7 @@ public class MaterialCalendarView extends ViewGroup {
             daysOfWeek.add(thi);
             daysOfWeek.add(fou);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**
@@ -963,7 +963,7 @@ public class MaterialCalendarView extends ViewGroup {
             daysOfWeek.add(sec);
             daysOfWeek.add(thi);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**
@@ -978,7 +978,7 @@ public class MaterialCalendarView extends ViewGroup {
             daysOfWeek.add(fir);
             daysOfWeek.add(sec);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**
@@ -991,7 +991,7 @@ public class MaterialCalendarView extends ViewGroup {
         for (int counter = 0; counter < 1; counter++) {
             daysOfWeek.add(fir);
         }
-        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     /**

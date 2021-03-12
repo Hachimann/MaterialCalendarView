@@ -189,7 +189,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         return pagerView;
     }
 
-    public void selectDaysOfWeek(List<Integer> daysOfWeek, int day, int weekIdentifier) {
+    public void removePreviouslySelectedDates(List<Integer> daysOfWeek, int day, int weekIdentifier, boolean needToUpdate) {
         if (day != 0) {
             List<CalendarDay> temp = new ArrayList<>(selectedDates);
             for (CalendarDay calendarDay : temp
@@ -199,7 +199,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
                 }
             }
         }
-        if (weekIdentifier != this.weekIdentifier) {
+        if (needToUpdate) {
             int tempWeekIdentifier;
             if (weekIdentifier == 0) {
                 tempWeekIdentifier = this.weekIdentifier;

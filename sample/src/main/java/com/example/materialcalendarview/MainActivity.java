@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     weekIdentifier = 1;
                 }
             }
-            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
         }
 
         for (CalendarDay calendarDay : selectedDates
@@ -116,14 +116,14 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 isSwitchChecked = false;
                 weekIdentifier = 0;
             }
-            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, true);
         });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier);
+        materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     public static Calendar localDateToDate(LocalDate localDate) {
@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                             checkedDates[position] = false;
                             daysOfWeek.remove((Integer) (position + 1));
                         }
-                        materialCalendarView.selectDaysOfWeek(daysOfWeek, position + 1, weekIdentifier);
+                        materialCalendarView.selectDaysOfWeek(daysOfWeek, position + 1, weekIdentifier, false);
                         return true;
                     }
                     return false;
