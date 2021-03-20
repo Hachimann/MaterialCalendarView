@@ -105,6 +105,7 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         newAdapter.maxDate = maxDate;
         newAdapter.selectedDates = selectedDates;
         newAdapter.daysOfWeek = daysOfWeek;
+        newAdapter.weekIdentifier = weekIdentifier;
         newAdapter.weekDayFormatter = weekDayFormatter;
         newAdapter.dayFormatter = dayFormatter;
         newAdapter.dayFormatterContentDescription = dayFormatterContentDescription;
@@ -178,8 +179,6 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
         pagerView.setMaximumDate(maxDate);
         pagerView.setSelectedDates(selectedDates, daysOfWeek, mcv.getFirstDayOfWeek(),
                 weekIdentifier);
-
-//        pagerView.selectDaysOfWeek(daysOfWeek, unselectedDates);
 
         container.addView(pagerView);
         currentViews.add(pagerView);

@@ -87,17 +87,16 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     weekIdentifier = 1;
                 }
             }
+            for (CalendarDay calendarDay : selectedDates
+            ) {
+                if (daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
+                    materialCalendarView.setDateSelected(calendarDay, (!selectedDates.contains(calendarDay)));
+                }
+                if (!daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
+                    materialCalendarView.setDateSelected(calendarDay, (selectedDates.contains(calendarDay)));
+                }
+            }
             materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
-        }
-
-        for (CalendarDay calendarDay : selectedDates
-        ) {
-            if (daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
-                materialCalendarView.setDateSelected(calendarDay, (!selectedDates.contains(calendarDay)));
-            }
-            if (!daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
-                materialCalendarView.setDateSelected(calendarDay, (selectedDates.contains(calendarDay)));
-            }
         }
 
         final GridView gridView = findViewById(R.id.calendar_grid);
@@ -118,12 +117,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             }
             materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, true);
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
     }
 
     public static Calendar localDateToDate(LocalDate localDate) {

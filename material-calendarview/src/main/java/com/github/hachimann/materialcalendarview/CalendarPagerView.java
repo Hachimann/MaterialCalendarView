@@ -181,8 +181,15 @@ abstract class CalendarPagerView extends ViewGroup
     }
 
     private boolean isInRange(CalendarDay calendarDay) {
-        if (minDate == null || maxDate == null) {
+        if (minDate == null && maxDate == null) {
             return true;
+        } else if (maxDate == null) {
+            return calendarDay.getDate().isAfter(minDate.getDate())
+                    || calendarDay.getDate().isEqual(minDate.getDate());
+        }
+        else if (minDate == null) {
+            return calendarDay.getDate().isBefore(maxDate.getDate())
+                    || calendarDay.getDate().isEqual(maxDate.getDate());
         }
         return (calendarDay.getDate().isAfter(minDate.getDate())
                 || calendarDay.getDate().isEqual(minDate.getDate()))
