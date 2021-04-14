@@ -9,17 +9,16 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.github.hachimann.materialcalendarview.CalendarDay;
 import com.github.hachimann.materialcalendarview.MaterialCalendarView;
-import com.github.hachimann.materialcalendarview.OnDateSelectedListener;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -38,7 +37,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements OnDateSelectedListener {
+public class MainActivity extends AppCompatActivity {
 
     MaterialCalendarView materialCalendarView;
     private List<CalendarDay> selectedDates = new ArrayList<>();
@@ -54,7 +53,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
 
         materialCalendarView = findViewById(R.id.calendarView);
         materialCalendarView.setSelectionMode(MaterialCalendarView.SELECTION_MODE_MULTIPLE);
-        materialCalendarView.setOnDateChangedListener(this);
         materialCalendarView.state().edit()
                 .isCacheCalendarPositionEnabled(true)
                 .commit();
@@ -87,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     weekIdentifier = 1;
                 }
             }
+            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
             for (CalendarDay calendarDay : selectedDates
             ) {
                 if (daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
@@ -96,7 +95,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                     materialCalendarView.setDateSelected(calendarDay, (selectedDates.contains(calendarDay)));
                 }
             }
-            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, false);
         }
 
         final GridView gridView = findViewById(R.id.calendar_grid);
@@ -115,6 +113,18 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
                 isSwitchChecked = false;
                 weekIdentifier = 0;
             }
+            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, true);
+        });
+
+        Button button1 = findViewById(R.id.button);
+        Button button2 = findViewById(R.id.button2);
+
+        button1.setOnClickListener(v -> {
+            weekIdentifier = 1;
+            materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, true);
+        });
+        button2.setOnClickListener(v -> {
+            weekIdentifier = 2;
             materialCalendarView.selectDaysOfWeek(daysOfWeek, 0, weekIdentifier, true);
         });
     }
@@ -211,11 +221,6 @@ public class MainActivity extends AppCompatActivity implements OnDateSelectedLis
             return 0;
         }
 
-    }
-
-    @Override
-    public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
-        selectedDates = widget.getSelectedDates();
     }
 
     @Override

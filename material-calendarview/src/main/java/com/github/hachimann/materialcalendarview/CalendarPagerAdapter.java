@@ -199,21 +199,29 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
             }
         }
         if (needToUpdate) {
-            int tempWeekIdentifier;
+            boolean isNeedToUpdateAll = false;
+            int tempWeekIdentifier = 0;
             if (weekIdentifier == 0) {
                 tempWeekIdentifier = this.weekIdentifier;
-            } else {
+            } else if (this.weekIdentifier == 0) {
                 tempWeekIdentifier = weekIdentifier;
+            } else {
+                isNeedToUpdateAll = true;
             }
-            List<CalendarDay> temp = new ArrayList<>(selectedDates);
-            for (CalendarDay calendarDay : temp
-            ) {
-                WeekFields weekFields = WeekFields.of(mcv.getFirstDayOfWeek(), 1);
-                int weekOfYear = calendarDay.getDate().get(weekFields.weekOfWeekBasedYear());
-                if (((weekOfYear % 2 != 0 && tempWeekIdentifier == 2)
-                        || (weekOfYear % 2 == 0 && tempWeekIdentifier == 1))
-                        && daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
-                    selectedDates.remove(calendarDay);
+
+            if (weekIdentifier != this.weekIdentifier) {
+                List<CalendarDay> temp = new ArrayList<>(selectedDates);
+                for (CalendarDay calendarDay : temp
+                ) {
+                    WeekFields weekFields = WeekFields.of(mcv.getFirstDayOfWeek(), 1);
+                    int weekOfYear = calendarDay.getDate().get(weekFields.weekOfWeekBasedYear());
+                    if (isNeedToUpdateAll && daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())) {
+                        selectedDates.remove(calendarDay);
+                    } else if (daysOfWeek.contains(calendarDay.getDate().getDayOfWeek().getValue())
+                            && ((weekOfYear % 2 != 0 && tempWeekIdentifier == 2)
+                            || (weekOfYear % 2 == 0 && tempWeekIdentifier == 1))) {
+                        selectedDates.remove(calendarDay);
+                    }
                 }
             }
         }
@@ -222,8 +230,14 @@ abstract class CalendarPagerAdapter<V extends CalendarPagerView> extends PagerAd
     }
 
     private boolean isInRange(CalendarDay calendarDay) {
-        if (minDate == null || maxDate == null) {
+        if (minDate == null && maxDate == null) {
             return true;
+        } else if (maxDate == null) {
+            return calendarDay.getDate().isAfter(minDate.getDate())
+                    || calendarDay.getDate().isEqual(minDate.getDate());
+        } else if (minDate == null) {
+            return calendarDay.getDate().isBefore(maxDate.getDate())
+                    || calendarDay.getDate().isEqual(maxDate.getDate());
         }
         return (calendarDay.getDate().isAfter(minDate.getDate())
                 || calendarDay.getDate().isEqual(minDate.getDate()))
