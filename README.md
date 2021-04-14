@@ -9,6 +9,7 @@ Material Calendar View for Android. Improved Material CalendarView from [Prolifi
 - [x] Highlighting the current date.
 - [x] Disabled ripple.
 - [x] Editable size of selectors.
+- [x] Dark theme support.
 
 ## Installation
 
